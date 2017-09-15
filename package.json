@@ -1,0 +1,34 @@
+{
+  "name": "diya-sdk-ieq",
+  "version": "1.0.0",
+  "description": "diya-sdk-ieq",
+  "main": "src/ieq.js",
+  "scripts": {
+    "clean": "rm -f build/ieq.js && rm -f build/ieq.min.js && rm -f build/temp.js && rm -rf build/build",
+    "build-debug": "browserify src/ieq.js -t [ babelify --presets [ es2015 es2016 ] ] --exclude q --exclude json-socket --exclude bluebird --im -d > build/ieq.js",
+    "build-min": "browserify src/ieq.js -t [ babelify --presets [ es2015 es2016 ] ] --exclude q --exclude json-socket --exclude bluebird --im | uglifyjs -c > build/ieq.min.js",
+    "build": "npm run build-debug && npm run build-min",
+    "watch": "watchify src/ieq.js -d --exclude q --im -o build/ieq.js -v"
+  },
+  "author": "Sylvain Mahé <sylv.mahe@gmail.com> (https://github.com/nilpotence)",
+  "license": "MIT",
+  "dependencies": {
+    "babelify": "7.3.0",
+    "base-64": "0.1.0",
+    "buffer": "github:feross/buffer",
+    "inherits": "2.0.3",
+    "json-socket": "0.2.1",
+    "messageify": "github:partnering/messageify",
+    "node-event-emitter": "0.0.1",
+    "q": "1.4.1",
+    "r": "0.0.5",
+    "webrtc-adapter": "1.1.0"
+  },
+  "devDependencies": {
+    "babel-preset-es2015": "6.24.1",
+    "babel-preset-es2016": "6.24.1",
+    "browserify": "14.1.0",
+    "uglify-js": "2.8.22",
+    "watchify": "3.9.0"
+  }
+}
