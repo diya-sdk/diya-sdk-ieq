@@ -50,7 +50,7 @@
 	var util = require('util');
 
 
-	var Message = require('../message');
+	//var Message = require('../message');
 
 
 	//////////////////////////////////////////////////////////////
