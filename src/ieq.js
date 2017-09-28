@@ -35,19 +35,15 @@
  * License along with this library.
  */
 
-/**
-   Todo :
-   check err for each data
-   improve API : getData(sensorName, dataConfig)
-   updateData(sensorName, dataConfig)
-   set and get for the different dataConfig params
-
-*/
 
 (function(){
 
 	var DiyaSelector = d1.DiyaSelector;
 	var util = require('util');
+	var Watcher = require('./Watcher.js');
+	const debug = require('debug')('Ieq');
+
+	'use strict';
 
 
 
@@ -55,17 +51,6 @@
 	//////////////////////////////////////////////////////////////
 	/////////////////// Logging utility methods //////////////////
 	//////////////////////////////////////////////////////////////
-
-	var DEBUG = true;
-	var Logger = {
-		log: function(message){
-			if(DEBUG) console.log(message);
-		},
-
-		error: function(message){
-			if(DEBUG) console.error(message);
-		}
-	};
 
 	/**
 	 * IEQ API handler
@@ -75,7 +60,7 @@
 		this.selector = selector;
 		this.dataModel={};
 		this._coder = selector.encode();
-		this.subscriptions = [];
+		this.watchers = [];
 
 		/*** structure of data config. [] means default value ***
 			 criteria :
@@ -90,7 +75,7 @@
 
 			 sensors : {[null] or ArrayOf SensorName}
 
-			 sampling: {[null] or int}
+		 sampling: {[null] or int} - deprecated
 		*/
 		this.dataConfig = {
 			criteria: {
@@ -286,16 +271,14 @@
 		}, function(dnId, err, data){
 			data = JSON.parse(data);
 			if(err!=null) {
-				if (typeof err =="string") Logger.error("Recv err: "+ err);
+				if (typeof err =="string") debug("Recv err: "+ err);
 				else if (typeof err == "object" && typeof err.name =='string') {
 					callback(null, err.name);
-					if (typeof err.message=="string") Logger.error(err.message);
+					if (typeof err.message=="string") debug(err.message);
 				}
 				return;
 			}
-			that._getDataModelFromRecv(data);
-			// Logger.log(that.getDataModel());
-			callback(that.getDataModel()); // callback func
+			callback(that._getDataModelFromRecv(data)); // callback func
 		});
 	};
 
@@ -307,7 +290,7 @@
 				return nanPres && isNaN(d);
 			},false);
 			dataModelNaN = dataModelNaN && sensorNan;
-			Logger.log(n+" with nan : "+sensorNan+" ("+dataModelNaN+") / "+this.dataModel[n].data.length);
+			debug(n+" with nan : "+sensorNan+" ("+dataModelNaN+") / "+this.dataModel[n].data.length);
 		}
 	};
 
@@ -327,83 +310,58 @@
 
 	/**
 	 * Update internal model with received data
-	 * @param  data to configure subscription
+	 * @param  config data to configure subscription
 	 * @param  callback called on answers (@param : dataModel)
+	 * @return watcher created watcher
 	 */
 	IEQ.prototype.watch = function(config, callback){
 		var that = this;
-		/** default **/
-		config = config || {};
-		config.timeRange = config.timeRange  || 'hours';
-		config.category = config.cat || 'ieq'; /* category */
 
-		var requestConfig = {
-			sampling: config.sampling || 500,
-			criteria: {
-				time: {rangeUnit: config.timeRange},
-				robots: config.robots
-			},
-			category: config.category,
-			operators: ['avg','min','max','stddev']
-		};
+		// do not create watcher without a callback
+		if( callback==null || typeof callback!=='function') return null;
 
-		// Request history data before subscribing
-		this.selector.request({
-			service: "ieq",
-			func: "DataRequest",
-			data: {data: JSON.stringify(requestConfig)},
-			obj:{
-				path: '/fr/partnering/Ieq',
-				interface: "fr.partnering.Ieq"
-			}
-		}, function(dnId, err, dataString){
-			var data = JSON.parse(dataString);
-			if(err != null) {
-				if (typeof err =="string") Logger.error("Recv err: "+ err);
-				else if (typeof err == "object" && typeof err.name =='string') {
-					callback(null, err.name);
-					if (typeof err.message=="string") Logger.error(err.message);
-				}
-				return;
-			}
-			callback(that._getDataModelFromRecv(data)); // callback func
+		let watcher = new Watcher(this.selector, config);
+
+		// add watcher in watcher list
+		this.watchers.push(watcher);
+
+		watcher.on('data', data => {
+			callback(that._getDataModelFromRecv(data));
 		});
+		watcher.on('stop', this._removeWatcher);
 
-		var subs = this.selector.subscribe({
-			service: "ieq",
-			func: "Second",
-			data: {data: config},
-			obj:{
-				path: '/fr/partnering/Ieq',
-				interface: "fr.partnering.Ieq"
-			}
-		}, function(dnd, err, data){
-			if(err) {
-			//	Logger.error("WatchIEQRecvErr:"+JSON.stringify(err));
-				that.closeSubscriptions(); // should not be necessary
-				that.subscriptionReqPeriod = that.subscriptionReqPeriod+1000||1000; // increase delay by 1 sec
-				if(that.subscriptionReqPeriod > 300000) that.subscriptionReqPeriod=300000; // max 5min
-				subs.watchTentative = setTimeout(function() {	that.watch(config,callback); }, that.subscriptionReqPeriod); // try again later
-				return;
-			}
-			data = JSON.parse(data);
-
-			that.subscriptionReqPeriod=0; // reset period on subscription requests
-			callback(that._getDataModelFromRecv(data)); // callback func
-		});
-
-		this.subscriptions.push(subs);
+		return watcher;
 	};
 
 	/**
-	 * Close all subscriptions
+	 * Callback to remove watcher from list
+	 * @param watcher to be removed
+	 */
+	IEQ.prototype._removeWatcher = function(watcher) {
+		// find and remove watcher in list
+		this.watchers.find( (el, id, watchers) => {
+			if( watcher===el ) {
+				watchers.splice(id,1); // remove
+				return true;
+			}
+			return false;
+		})
+	};
+
+	/**
+	 * Stop all watchers
 	 */
 	IEQ.prototype.closeSubscriptions = function(){
-		for(var i in this.subscriptions) {
-			this.subscriptions[i].close();
-			clearTimeout(this.subscriptions[i].watchTentative);
-		}
-		this.subscriptions =[];
+		console.warn('Deprecated function use stopWatchers instead');
+		this.stopWatchers();
+	};
+	IEQ.prototype.stopWatchers = function(){
+		this.watchers.forEach( watcher => {
+			// remove listener on stop event to avoid purging watchers twice
+			watcher.removeListener('stop', this._removeWatcher);
+			watcher.stop();
+		});
+		this.watchers =[];
 	};
 
 	/**
@@ -414,10 +372,8 @@
 		* @param {number} csvConfig._endTime: timestamp of end time
 		* @param {string} csvConfig.timeSample: timeinterval for data. Parameters: "second", "minute", "hour", "day", "week", "month"
 		* @param {number} csvConfig._nlines: maximum number of lines requested
-		* @param {callback} callback: called after update
+		* @param {callback} callback: called after update (@param url to download csv file)
 	*/
-
-
 	IEQ.prototype.getCSVData = function(csvConfig, callback){
 
 		var that = this;
@@ -445,21 +401,14 @@
 			}
 		}, function(dnId, err, data){
 			if(err) {
-				if (typeof err =="string") Logger.error("Recv err: "+ err);
+				if (typeof err =="string") debug("Recv err: "+ err);
 				else if (typeof err == "object" && typeof err.name =='string') {
 					callback(null, err.name);
-					if (typeof err.message=="string") Logger.error(err.message);
+					if (typeof err.message=="string") debug(err.message);
 				}
 				return;
 			}
-			if(typeof data === 'string') {
-				callback(data);
-			}
-			else {
-				that._getDataModelFromRecv(data);
-				// Logger.log(that.getDataModel());
-				callback(that.getDataModel()); // callback func
-			}
+			callback(data);
 		});
 	};
 
@@ -504,21 +453,19 @@
 	 */
 	IEQ.prototype._getDataModelFromRecv = function(data){
 		var dataModel=null;
-	//	console.log('getDataModel');
-	//	console.log(data);
+		debug('GetDataModel',data)
 		if(data != null) {
 			for (var n in data) {
 				if(n != "header" && n != "err") {
 
 					if(data[n].err && data[n].err.st>0) {
-						Logger.error(n+" was in error: "+data[n].err.msg);
+						debug(n+" was in error: "+data[n].err.msg);
 						continue;
 					}
 
 					if(!dataModel)
 						dataModel={};
 
-					// Logger.log(n);
 					if(!dataModel[n]) {
 						dataModel[n]={};
 					}
@@ -603,14 +550,13 @@
 			}
 		}
 		else {
-			Logger.error("No Data to read or header is missing !");
+			debug("No Data to read or header is missing !");
 		}
 		/** list robots **/
 		this.dataModel=dataModel;
+		debug(dataModel);
 		return dataModel;
 	};
-
-
 
 
 
