@@ -50,7 +50,6 @@
 	var util = require('util');
 
 
-	//var Message = require('../message');
 
 
 	//////////////////////////////////////////////////////////////
@@ -77,7 +76,6 @@
 		this.dataModel={};
 		this._coder = selector.encode();
 		this.subscriptions = [];
-	//	that.subscriptionErrorNum = 0;
 
 		/*** structure of data config. [] means default value ***
 			 criteria :
@@ -143,7 +141,7 @@
 	 *	 @return {Object} current dataConfig
 	 */
 	IEQ.prototype.DataConfig = function(newDataConfig){
-		if(newDataConfig) {
+		if(newDataConfig!=null) {
 			this.dataConfig=newDataConfig;
 			return this;
 		}
@@ -162,7 +160,7 @@
 	 *	@return {String} operator
 	 */
 	IEQ.prototype.DataOperator = function(newOperator){
-		if(newOperator) {
+		if(newOperator!=null) {
 			this.dataConfig.operator = newOperator;
 			return this;
 		}
@@ -178,7 +176,7 @@
 	 *	@return {int} number of samples
 	 **/
 	IEQ.prototype.DataSampling = function(numSamples){
-		if(numSamples) {
+		if(numSamples!=null) {
 			this.dataConfig.sampling = numSamples;
 			return this;
 		}
@@ -195,7 +193,7 @@
 	 *	@return {Object} Time object: fields start and end.
 	 */
 	IEQ.prototype.DataTime = function(newTimeStart,newTimeEnd, newRange){
-		if(newTimeStart || newTimeEnd || newRange) {
+		if(newTimeStart!=null || newTimeEnd!=null || newRange!=null) {
 			this.dataConfig.criteria.time.start = newTimeStart.getTime();
 			this.dataConfig.criteria.time.end = newTimeEnd.getTime();
 			this.dataConfig.criteria.time.range = newRange;
@@ -216,7 +214,7 @@
 	 *	@return {Array[Int]} list of robot Ids
 	 */
 	IEQ.prototype.DataRobotIds = function(robotIds){
-		if(robotIds) {
+		if(robotIds!=null) {
 			this.dataConfig.criteria.robot = robotIds;
 			return this;
 		}
@@ -231,7 +229,7 @@
 	 *	@return {Array[Int]} list of place Ids
 	 */
 	IEQ.prototype.DataPlaceIds = function(placeIds){
-		if(placeIds) {
+		if(placeIds!=null) {
 			this.dataConfig.criteria.placeId = placeIds;
 			return this;
 		}
@@ -287,18 +285,12 @@
 			}
 		}, function(dnId, err, data){
 			data = JSON.parse(data);
-			if(err) {
+			if(err!=null) {
 				if (typeof err =="string") Logger.error("Recv err: "+ err);
 				else if (typeof err == "object" && typeof err.name =='string') {
 					callback(null, err.name);
 					if (typeof err.message=="string") Logger.error(err.message);
 				}
-				return;
-			}
-			if(data && data.header && data.header.error) {
-				// TODO : check/use err status and adapt behavior accordingly
-				Logger.error("UpdateData:\n"+JSON.stringify(data.header.dataConfig));
-				Logger.error("Data request failed ("+data.header.error.st+"): "+data.header.error.msg);
 				return;
 			}
 			that._getDataModelFromRecv(data);
@@ -464,13 +456,6 @@
 				callback(data);
 			}
 			else {
-				// DEPRECATED
-				if(data && data.header && data.header.error) {
-				// TODO : check/use err status and adapt behavior accordingly
-				Logger.error("UpdateData:\n"+JSON.stringify(data.header.dataConfig));
-				Logger.error("Data request failed ("+data.header.error.st+"): "+data.header.error.msg);
-					return;
-				}
 				that._getDataModelFromRecv(data);
 				// Logger.log(that.getDataModel());
 				callback(that.getDataModel()); // callback func
@@ -521,11 +506,6 @@
 		var dataModel=null;
 	//	console.log('getDataModel');
 	//	console.log(data);
-	/*	if(data.err && data.err.st>0) {
-			Logger.error(data.err.msg);
-			return null;
-		} */
-	//	delete data.err;
 		if(data != null) {
 			for (var n in data) {
 				if(n != "header" && n != "err") {
@@ -626,7 +606,6 @@
 			Logger.error("No Data to read or header is missing !");
 		}
 		/** list robots **/
-	//	dataModel.robots = [{name: 'D2R2', id:1}];
 		this.dataModel=dataModel;
 		return dataModel;
 	};
