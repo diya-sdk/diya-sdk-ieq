@@ -36,12 +36,13 @@
  */
 
 
-(function(){
+(function () {
 
 	var DiyaSelector = d1.DiyaSelector;
 	var util = require('util');
-	var Watcher = require('./Watcher.js');
-	const debug = require('debug')('Ieq');
+	var Watcher = require('./watcher.js');
+	var formatTime = require('./timecontrol.js').formatTime;
+	const debug = require('debug')('ieq');
 
 	'use strict';
 
@@ -55,10 +56,10 @@
 	/**
 	 * IEQ API handler
 	 */
-	function IEQ(selector){
+	function IEQ(selector) {
 		var that = this;
 		this.selector = selector;
-		this.dataModel={};
+		this.dataModel = {};
 		this._coder = selector.encode();
 		this.watchers = [];
 
@@ -111,10 +112,10 @@
 	 *	 ... ("senseursYY")
 	 * }
 	 */
-	IEQ.prototype.getDataModel = function(){
+	IEQ.prototype.getDataModel = function () {
 		return this.dataModel;
 	};
-	IEQ.prototype.getDataRange = function(){
+	IEQ.prototype.getDataRange = function () {
 		return this.dataModel.range;
 	};
 
@@ -125,13 +126,13 @@
 	 * else
 	 *	 @return {Object} current dataConfig
 	 */
-	IEQ.prototype.DataConfig = function(newDataConfig){
-		if(newDataConfig!=null) {
-			this.dataConfig=newDataConfig;
+	IEQ.prototype.DataConfig = function (newDataConfig) {
+		if (newDataConfig != null) {
+			this.dataConfig =newDataConfig;
 			return this;
-		}
-		else
+		} else {
 			return this.dataConfig;
+		}
 	};
 	/**
 	 * TO BE IMPLEMENTED : operator management in DN-IEQ
@@ -144,13 +145,13 @@
 	 * Get operator criteria.
 	 *	@return {String} operator
 	 */
-	IEQ.prototype.DataOperator = function(newOperator){
-		if(newOperator!=null) {
+	IEQ.prototype.DataOperator = function (newOperator) {
+		if (newOperator != null) {
 			this.dataConfig.operator = newOperator;
 			return this;
-		}
-		else
+		} else {
 			return this.dataConfig.operator;
+		}
 	};
 	/**
 	 * Depends on numSamples
@@ -160,13 +161,13 @@
 	 * else
 	 *	@return {int} number of samples
 	 **/
-	IEQ.prototype.DataSampling = function(numSamples){
-		if(numSamples!=null) {
+	IEQ.prototype.DataSampling = function (numSamples) {
+		if (numSamples != null) {
 			this.dataConfig.sampling = numSamples;
 			return this;
-		}
-		else
+		} else {
 			return this.dataConfig.sampling;
+		}
 	};
 	/**
 	 * Set or get data time criteria start and end.
@@ -177,19 +178,19 @@
 	 * If no param defined:
 	 *	@return {Object} Time object: fields start and end.
 	 */
-	IEQ.prototype.DataTime = function(newTimeStart,newTimeEnd, newRange){
-		if(newTimeStart!=null || newTimeEnd!=null || newRange!=null) {
-			this.dataConfig.criteria.time.start = newTimeStart.getTime();
-			this.dataConfig.criteria.time.end = newTimeEnd.getTime();
+	IEQ.prototype.DataTime = function (newTimeStart, newTimeEnd, newRange) {
+		if (newTimeStart != null || newTimeEnd != null || newRange != null) {
+			this.dataConfig.criteria.time.start = formatTime(newTimeStart);
+			this.dataConfig.criteria.time.end = formatTime(newTimeEnd);
 			this.dataConfig.criteria.time.range = newRange;
 			return this;
-		}
-		else
+		} else {
 			return {
 				start: new Date(this.dataConfig.criteria.time.start),
 				end: new Date(this.dataConfig.criteria.time.end),
 				range: new Date(this.dataConfig.criteria.time.range)
 			};
+		}
 	};
 	/**
 	 * Depends on robotIds
@@ -198,13 +199,13 @@
 	 * Get robot criteria.
 	 *	@return {Array[Int]} list of robot Ids
 	 */
-	IEQ.prototype.DataRobotIds = function(robotIds){
-		if(robotIds!=null) {
+	IEQ.prototype.DataRobotIds = function (robotIds) {
+		if (robotIds != null) {
 			this.dataConfig.criteria.robot = robotIds;
 			return this;
-		}
-		else
+		} else {
 			return this.dataConfig.criteria.robot;
+		}
 	};
 	/**
 	 * Depends on placeIds
@@ -213,8 +214,8 @@
 	 * Get place criteria.
 	 *	@return {Array[Int]} list of place Ids
 	 */
-	IEQ.prototype.DataPlaceIds = function(placeIds){
-		if(placeIds!=null) {
+	IEQ.prototype.DataPlaceIds = function (placeIds) {
+		if (placeIds != null) {
 			this.dataConfig.criteria.placeId = placeIds;
 			return this;
 		}
@@ -228,7 +229,7 @@
 
 
 
-	IEQ.prototype.getDataByName = function(sensorNames){
+	IEQ.prototype.getDataByName = function (sensorNames) {
 		var data=[];
 		for(var n in sensorNames) {
 			data.push(this.dataModel[sensorNames[n]]);
@@ -243,7 +244,7 @@
 	 * TODO USE PROMISE
 	 */
 
-	IEQ.prototype.updateData = function(callback, dataConfig){
+	IEQ.prototype.updateData = function (callback, dataConfig) {
 		this._updateData(callback, dataConfig, "DataRequest")
 	};
 
@@ -255,9 +256,9 @@
 	 * TODO USE PROMISE
 	 */
 
-	IEQ.prototype._updateData = function(callback, dataConfig, funcName){
+	IEQ.prototype._updateData = function (callback, dataConfig, funcName) {
 		var that = this;
-		if(dataConfig)
+		if (dataConfig)
 			this.DataConfig(dataConfig);
 
 		this.selector.request({
@@ -268,11 +269,11 @@
 				path: '/fr/partnering/Ieq',
 				interface: "fr.partnering.Ieq"
 			}
-		}, function(dnId, err, data){
+		}, function (dnId, err, data) {
 			data = JSON.parse(data);
-			if(err!=null) {
-				if (typeof err =="string") debug("Recv err: "+ err);
-				else if (typeof err == "object" && typeof err.name =='string') {
+			if (err != null) {
+				if (typeof err == "string") debug("Recv err: "+ err);
+				else if (typeof err == "object" && typeof err.name == 'string') {
 					callback(null, err.name);
 					if (typeof err.message=="string") debug(err.message);
 				}
@@ -282,27 +283,27 @@
 		});
 	};
 
-	IEQ.prototype._isDataModelWithNaN = function() {
+	IEQ.prototype._isDataModelWithNaN = function () {
 		var dataModelNaN=false;
 		var sensorNan;
 		for(var n in this.dataModel) {
-			sensorNan = this.dataModel[n].data.reduce(function(nanPres,d) {
+			sensorNan = this.dataModel[n].data.reduce(function (nanPres, d) {
 				return nanPres && isNaN(d);
-			},false);
+			}, false);
 			dataModelNaN = dataModelNaN && sensorNan;
 			debug(n+" with nan : "+sensorNan+" ("+dataModelNaN+") / "+this.dataModel[n].data.length);
 		}
 	};
 
-	IEQ.prototype.getConfinementLevel = function(){
+	IEQ.prototype.getConfinementLevel = function () {
 		return this.confinement;
 	};
 
-	IEQ.prototype.getAirQualityLevel = function(){
+	IEQ.prototype.getAirQualityLevel = function () {
 		return this.airQuality;
 	};
 
-	IEQ.prototype.getEnvQualityLevel = function(){
+	IEQ.prototype.getEnvQualityLevel = function () {
 		return this.envQuality;
 	};
 
@@ -314,11 +315,11 @@
 	 * @param  callback called on answers (@param : dataModel)
 	 * @return watcher created watcher
 	 */
-	IEQ.prototype.watch = function(config, callback){
+	IEQ.prototype.watch = function (config, callback) {
 		var that = this;
 
 		// do not create watcher without a callback
-		if( callback==null || typeof callback!=='function') return null;
+		if ( callback==null || typeof callback !== 'function') return null;
 
 		let watcher = new Watcher(this.selector, config);
 
@@ -337,11 +338,11 @@
 	 * Callback to remove watcher from list
 	 * @param watcher to be removed
 	 */
-	IEQ.prototype._removeWatcher = function(watcher) {
+	IEQ.prototype._removeWatcher = function (watcher) {
 		// find and remove watcher in list
 		this.watchers.find( (el, id, watchers) => {
-			if( watcher===el ) {
-				watchers.splice(id,1); // remove
+			if (watcher === el) {
+				watchers.splice(id, 1); // remove
 				return true;
 			}
 			return false;
@@ -351,11 +352,11 @@
 	/**
 	 * Stop all watchers
 	 */
-	IEQ.prototype.closeSubscriptions = function(){
+	IEQ.prototype.closeSubscriptions = function () {
 		console.warn('Deprecated function use stopWatchers instead');
 		this.stopWatchers();
 	};
-	IEQ.prototype.stopWatchers = function(){
+	IEQ.prototype.stopWatchers = function () {
 		this.watchers.forEach( watcher => {
 			// remove listener on stop event to avoid purging watchers twice
 			watcher.removeListener('stop', this._removeWatcher);
@@ -374,15 +375,15 @@
 		* @param {number} csvConfig._nlines: maximum number of lines requested
 		* @param {callback} callback: called after update (@param url to download csv file)
 	*/
-	IEQ.prototype.getCSVData = function(csvConfig, callback){
+	IEQ.prototype.getCSVData = function (csvConfig, callback) {
 
 		var that = this;
 
-		if (csvConfig && typeof csvConfig.nlines !="number" ) csvConfig.nlines = undefined;
+		if (csvConfig && typeof csvConfig.nlines != "number" ) csvConfig.nlines = undefined;
 
 		var dataConfig =JSON.stringify({
 			criteria: {
-				time: { start: (new Date(csvConfig.startTime)).getTime(), end: (new Date(csvConfig.endTime)).getTime() , sampling:csvConfig.timeSample},
+				time: { start: formatTime(csvConfig.startTime), end: formatTime(csvConfig.endTime), sampling:csvConfig.timeSample},
 				places: [],
 				robots: []
 			},
@@ -399,8 +400,8 @@
 				path: '/fr/partnering/Ieq',
 				interface: "fr.partnering.Ieq"
 			}
-		}, function(dnId, err, data){
-			if(err) {
+		}, function (dnId, err, data) {
+			if (err) {
 				if (typeof err =="string") debug("Recv err: "+ err);
 				else if (typeof err == "object" && typeof err.name =='string') {
 					callback(null, err.name);
@@ -419,7 +420,7 @@
 	  * @param {Object} dataConfig config for data request
 	  * @param {callback} callback: called after update
 	  */
-	IEQ.prototype.getDataMapData = function(dataConfig, callback){
+	IEQ.prototype.getDataMapData = function (dataConfig, callback) {
 		this._updateData(callback, dataConfig, "DataRequest");
 	};
 
@@ -433,10 +434,10 @@
 	  * @deprecated Will be deprecated in future version. Please use "getDataMapData" instead.
 
 	  */
-	IEQ.prototype.getHeatMapData = function(sensorNames,time, sample, callback){
+	IEQ.prototype.getHeatMapData = function (sensorNames, time, sample, callback) {
 		var dataConfig = {
 			criteria: {
-				time: {start: time.startEpoch, end: time.endEpoch, sampling: sample},
+				time: {start: formatTime(time.startEpoch), end: formatTime(time.endEpoch), sampling: sample},
 				places: [],
 				robots: []
 			},
@@ -451,22 +452,22 @@
 	 * @param  {Object} data data received from DiyaNode by websocket
 	 * @return {[type]}		[description]
 	 */
-	IEQ.prototype._getDataModelFromRecv = function(data){
-		var dataModel=null;
-		debug('GetDataModel',data)
-		if(data != null) {
+	IEQ.prototype._getDataModelFromRecv = function (data) {
+		var dataModel = null;
+		debug('GetDataModel', data);
+		if (data != null) {
 			for (var n in data) {
-				if(n != "header" && n != "err") {
+				if (n != "header" && n != "err") {
 
-					if(data[n].err && data[n].err.st>0) {
+					if (data[n].err && data[n].err.st > 0) {
 						debug(n+" was in error: "+data[n].err.msg);
 						continue;
 					}
 
-					if(!dataModel)
+					if (!dataModel)
 						dataModel={};
 
-					if(!dataModel[n]) {
+					if (!dataModel[n]) {
 						dataModel[n]={};
 					}
 					/* update data absolute range */
@@ -488,57 +489,64 @@
 
 					/* update data indexRange */
 					dataModel[n].qualityConfig={
-						/* confortRange: data[n].confortRange, */
 						indexRange: data[n].indexRange
 					};
-					dataModel[n].time = this._coder.from(data[n].time,'b64',8);
-					dataModel[n].data = (data[n].data?this._coder.from(data[n].data,'b64',4):(data[n].avg?this._coder.from(data[n].avg.d,'b64',4):null));
-					dataModel[n].qualityIndex = (data[n].data?this._coder.from(data[n].index,'b64',4):(data[n].avg?this._coder.from(data[n].avg.i,'b64',4):null));
-					dataModel[n].robotId = this._coder.from(data[n].robotId,'b64',4);
-					if(dataModel[n].robotId) {
+					dataModel[n].time = this._coder.from(data[n].time, 'b64', 8);
+					dataModel[n].data = (data[n].data != null)
+						? this._coder.from(data[n].data, 'b64', 4)
+						: ((data[n].avg != null)
+						   ? this._coder.from(data[n].avg.d, 'b64', 4)
+						   : null);
+					dataModel[n].qualityIndex = (data[n].data != null)
+						? this._coder.from(data[n].index, 'b64', 4)
+						: ((data[n].avg != null)
+						   ? this._coder.from(data[n].avg.i, 'b64', 4)
+						   : null);
+					dataModel[n].robotId = this._coder.from(data[n].robotId, 'b64', 4);
+					if (dataModel[n].robotId != null) {
 						/** dico robotId -> robotName **/
 						var dicoRobot = {};
-						data.header.robots.forEach(function(el) {
+						data.header.robots.forEach(function (el) {
 							dicoRobot[el.id]=el.name;
 						});
-						dataModel[n].robotId = dataModel[n].robotId.map(function(el) {
+						dataModel[n].robotId = dataModel[n].robotId.map(function (el) {
 							return dicoRobot[el];
 						});
 					}
 
-					dataModel[n].placeId = this._coder.from(data[n].placeId,'b64',4);
+					dataModel[n].placeId = this._coder.from(data[n].placeId, 'b64', 4);
 					dataModel[n].x = null;
 					dataModel[n].y = null;
 
-					if(data[n].avg)
+					if (data[n].avg != null)
 						dataModel[n].avg = {
-							d: this._coder.from(data[n].avg.d,'b64',4),
-							i: this._coder.from(data[n].avg.i,'b64',4)
+							d: this._coder.from(data[n].avg.d, 'b64', 4),
+							i: this._coder.from(data[n].avg.i, 'b64', 4)
 						};
-					if(data[n].min)
+					if (data[n].min != null)
 						dataModel[n].min = {
-							d: this._coder.from(data[n].min.d,'b64',4),
-							i: this._coder.from(data[n].min.i,'b64',4)
+							d: this._coder.from(data[n].min.d, 'b64', 4),
+							i: this._coder.from(data[n].min.i, 'b64', 4)
 						};
-					if(data[n].max)
+					if (data[n].max != null)
 						dataModel[n].max = {
-							d: this._coder.from(data[n].max.d,'b64',4),
-							i: this._coder.from(data[n].max.i,'b64',4)
+							d: this._coder.from(data[n].max.d, 'b64', 4),
+							i: this._coder.from(data[n].max.i, 'b64', 4)
 						};
-					if(data[n].stddev)
+					if (data[n].stddev != null)
 						dataModel[n].stddev = {
-							d: this._coder.from(data[n].stddev.d,'b64',4),
-							i: this._coder.from(data[n].stddev.i,'b64',4)
+							d: this._coder.from(data[n].stddev.d, 'b64', 4),
+							i: this._coder.from(data[n].stddev.i, 'b64', 4)
 						};
-					if(data[n].stddev)
+					if (data[n].stddev != null)
 						dataModel[n].stddev = {
-							d: this._coder.from(data[n].stddev.d,'b64',4),
-							i: this._coder.from(data[n].stddev.i,'b64',4)
+							d: this._coder.from(data[n].stddev.d, 'b64', 4),
+							i: this._coder.from(data[n].stddev.i, 'b64', 4)
 						};
-					if(data[n].x)
-						dataModel[n].x = this._coder.from(data[n].x,'b64',4);
-					if(data[n].y)
-						dataModel[n].y = this._coder.from(data[n].y,'b64',4);
+					if (data[n].x != null)
+						dataModel[n].x = this._coder.from(data[n].x, 'b64', 4);
+					if (data[n].y != null)
+						dataModel[n].y = this._coder.from(data[n].y, 'b64', 4);
 					/**
 					 * current quality : {'b'ad, 'm'edium, 'g'ood}
 					 * evolution : {'u'p, 'd'own, 's'table}
@@ -548,12 +556,11 @@
 					dataModel[n].trend = 'mss';
 				}
 			}
-		}
-		else {
+		} else {
 			debug("No Data to read or header is missing !");
 		}
 		/** list robots **/
-		this.dataModel=dataModel;
+		this.dataModel = dataModel;
 		debug(dataModel);
 		return dataModel;
 	};
@@ -561,7 +568,7 @@
 
 
 	/** create IEQ service **/
-	DiyaSelector.prototype.IEQ = function(){
+	DiyaSelector.prototype.IEQ = function () {
 		return new IEQ(this);
 	};
 })()
