@@ -42,10 +42,13 @@ class Watcher extends EventEmitter {
 			criteria: {
 				time: {}
 			},
-			operators: ['avg', 'min', 'max', 'stddev']
+			operators: ['avg', 'min', 'max', 'stddev'],
 		};
 		if (_config.robots instanceof Array) {
 			options.criteria.robots = _config.robots;
+			if (_config.robots.length > 0) {
+				debug('Selection of robot is not implemented yet');
+			}
 		}
 		if (_config.timeRange != null && typeof _config.timeRange === 'string') {
 			options.criteria.time.rangeUnit = _config.timeRange;
@@ -86,7 +89,7 @@ class Watcher extends EventEmitter {
 				obj:{
 					path: '/fr/partnering/Ieq',
 					interface: "fr.partnering.Ieq"
-				}
+				},
 			}, (dnId, err, dataString) => {
 				if (err != null)  {
 					reject(err);
@@ -99,7 +102,7 @@ class Watcher extends EventEmitter {
 				let data = JSON.parse(dataString);
 				this.emit('data', data);
 				resolve();
-			})
+			});
 		})
 			.then( _ => {
 				// subscribe to signal
