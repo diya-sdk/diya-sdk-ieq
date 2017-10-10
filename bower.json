@@ -1,9 +1,9 @@
 {
   "name": "diya-sdk-ieq",
-  "version": "0.8.0",
+  "version": "1.0.0",
   "homepage": "https://github.com/diya-sdk/diya-sdk-ieq",
   "authors": [
-    "Sylvain Mahé <sylv.mahe@gmail.com>"
+    "Antoine de Rengervé <antoine.derengerve@partnering.fr>"
   ],
   "description": "SDK ieq for accessing Diya One ieq service",
   "main": "build/ieq.min.js",
@@ -11,7 +11,8 @@
     "Diya",
     "One",
     "Partnering",
-    "SDK"
+    "SDK",
+    "ieq"
   ],
   "license": "LGPL v3",
   "private": true,
@@ -25,6 +26,5 @@
     "package.json"
   ],
   "dependencies": {
-    "q": "1.4"
   }
 }
