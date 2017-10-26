@@ -38,6 +38,7 @@
 
 (function () {
 
+	const d1 = require('diya-sdk');
 	var DiyaSelector = d1.DiyaSelector;
 	var util = require('util');
 	var Watcher = require('./watcher.js');
