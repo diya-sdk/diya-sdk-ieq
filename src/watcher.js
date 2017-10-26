@@ -5,9 +5,14 @@ const getTimeSampling = require('./timecontrol.js').getTimeSampling;
 
 // import Promise
 let Promise = null;
-if (window != null) {
-	Promise = window.Promise;
-} else {
+try{
+	if (window != null) {
+		Promise = window.Promise;
+	} else {
+		Promise = require('bluebird');
+	}
+}catch(e){
+	debug(e);
 	Promise = require('bluebird');
 }
 
