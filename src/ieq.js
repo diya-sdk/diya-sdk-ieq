@@ -37,13 +37,25 @@
 
 
 (function () {
-
-	const d1 = require('diya-sdk');
-	var DiyaSelector = d1.DiyaSelector;
+	const debug = require('debug')('ieq');
 	var util = require('util');
 	var Watcher = require('./watcher.js');
 	var formatTime = require('./timecontrol.js').formatTime;
-	const debug = require('debug')('ieq');
+
+	let DiyaSelector;
+	try {
+		// For browsers - d1 already defined
+		DiyaSelector = d1.DiyaSelector;
+	}
+	catch (error) {
+		if (error.name === 'ReferenceError') {
+			// For nodejs - define d1
+			const d1 = require('diya-sdk');
+			DiyaSelector = d1.DiyaSelector;
+		} else {
+			throw error;
+		}
+	}
 
 	'use strict';
 

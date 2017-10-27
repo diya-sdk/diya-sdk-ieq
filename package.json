@@ -5,8 +5,8 @@
   "main": "src/ieq.js",
   "scripts": {
     "clean": "rm -f build/ieq.js && rm -f build/ieq.min.js && rm -f build/temp.js && rm -rf build/build",
-    "build-debug": "browserify src/ieq.js -t [ babelify --presets [ es2015 es2016 ] ] --exclude q --exclude json-socket --exclude bluebird --im -d > build/ieq.js",
-    "build-min": "browserify src/ieq.js -t [ babelify --presets [ es2015 es2016 ] ] --exclude q --exclude json-socket --exclude bluebird --im | uglifyjs -c > build/ieq.min.js",
+    "build-debug": "browserify src/ieq.js -t [ babelify --presets [ es2015 es2016 ] ] --exclude q --exclude json-socket --exclude bluebird --exclude diya-sdk --im -d > build/ieq.js",
+    "build-min": "browserify src/ieq.js -t [ babelify --presets [ es2015 es2016 ] ] --exclude q --exclude json-socket --exclude bluebird --exclude diya-sdk --im | uglifyjs -c > build/ieq.min.js",
     "build": "npm run build-debug && npm run build-min",
     "watch": "watchify src/ieq.js -d --exclude q --im -o build/ieq.js -v"
   },
@@ -14,6 +14,7 @@
   "license": "MIT",
   "dependencies": {
     "babelify": "7.3.0",
+    "diya-sdk": "diya-sdk/diya-sdk#2.0.0",
     "eventemitter3": "2.0.3"
   },
   "devDependencies": {
