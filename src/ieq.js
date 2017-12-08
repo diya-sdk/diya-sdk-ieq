@@ -483,6 +483,8 @@
 					if (!dataModel[n]) {
 						dataModel[n]={};
 					}
+					/* update data id */
+					dataModel[n].id = n;
 					/* update data absolute range */
 					dataModel[n].range=data[n].range;
 					/* update data range */
