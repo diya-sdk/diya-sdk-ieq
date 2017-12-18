@@ -393,6 +393,7 @@
 		var that = this;
 
 		if (csvConfig && typeof csvConfig.nlines != "number" ) csvConfig.nlines = undefined;
+		if (csvConfig && typeof csvConfig.lang != "string" ) csvConfig.lang = undefined;
 
 		var dataConfig =JSON.stringify({
 			criteria: {
