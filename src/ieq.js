@@ -401,7 +401,8 @@
 				robots: []
 			},
 			sensors: csvConfig.sensorNames,
-			sampling: csvConfig.nlines
+			sampling: csvConfig.nlines,
+			lang: csvConfig.lang
 		});
 
 		this.selector.request({
