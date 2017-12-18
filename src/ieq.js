@@ -393,6 +393,7 @@
 		var that = this;
 
 		if (csvConfig && typeof csvConfig.nlines != "number" ) csvConfig.nlines = undefined;
+		if (csvConfig && typeof csvConfig.lang != "string" ) csvConfig.lang = undefined;
 
 		var dataConfig =JSON.stringify({
 			criteria: {
@@ -401,7 +402,8 @@
 				robots: []
 			},
 			sensors: csvConfig.sensorNames,
-			sampling: csvConfig.nlines
+			sampling: csvConfig.nlines,
+			lang: csvConfig.lang
 		});
 
 		this.selector.request({
