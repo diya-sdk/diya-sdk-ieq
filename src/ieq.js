@@ -78,18 +78,17 @@
 
 		/*** structure of data config. [] means default value ***
 			 criteria :
-			   time: all 3 time criteria should not be defined at the same time. (range would be given up)
+			   time: all 3 time criteria should not be defined at the same time. (range would be given up) [Usage : start + end, or start + range, or end + range]
 			     start: {[null],time} (null means most recent) // stored a UTC in ms (num)
 			     end: {[null], time} (null means most oldest) // stored as UTC in ms (num)
 			     range: {[null], time} (range of time(positive) ) // in s (num)
+				 sampling: {[null] or String} it could be "second", "minute", "week", "month", "year" - maximized server side to 10k samples by security
 			   robots: {ArrayOf ID or ["all"]}
 			   places: {ArrayOf ID or ["all"]}
 			 operator: {[last], max, moy, sd} - deprecated
 			 ...
 
 			 sensors : {[null] or ArrayOf SensorName}
-
-		 sampling: {[null] or int} - deprecated
 		*/
 		this.dataConfig = {
 			criteria: {
