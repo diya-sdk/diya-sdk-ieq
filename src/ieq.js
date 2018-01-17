@@ -82,8 +82,8 @@
 			     start: {[null],time} (null means most recent) // stored a UTC in ms (num)
 			     end: {[null], time} (null means most oldest) // stored as UTC in ms (num)
 			     range: {[null], time} (range of time(positive) ) // in s (num)
-			   robot: {ArrayOf ID or ["all"]}
-			   place: {ArrayOf ID or ["all"]}
+			   robots: {ArrayOf ID or ["all"]}
+			   places: {ArrayOf ID or ["all"]}
 			 operator: {[last], max, moy, sd} - deprecated
 			 ...
 
@@ -98,8 +98,8 @@
 					end: null,
 					range: null // in s
 				},
-				robot: null,
-				place: null
+				robots: null,
+				places: null
 			},
 			operator: 'last',
 			sensors: null,
@@ -115,8 +115,8 @@
 	 *	"senseurXX": {
 	 *			data:[FLOAT, ...],
 	 *			time:[FLOAT, ...],
-	 *			robot:[FLOAT, ...],
-	 *			place:[FLOAT, ...],
+	 *			robots:[FLOAT, ...],
+	 *			places:[FLOAT, ...],
 	 *			qualityIndex:[FLOAT, ...],
 	 *			range: [FLOAT, FLOAT],
 	 *			unit: string,
@@ -207,25 +207,25 @@
 	};
 	/**
 	 * Depends on robotIds
-	 * Set robot criteria.
-	 *	@param {Array[Int]} robotIds list of robot Ids
-	 * Get robot criteria.
-	 *	@return {Array[Int]} list of robot Ids
+	 * Set robots criteria.
+	 *	@param {Array[Int]} robotIds list of robots Ids
+	 * Get robots criteria.
+	 *	@return {Array[Int]} list of robots Ids
 	 */
 	IEQ.prototype.DataRobotIds = function (robotIds) {
 		if (robotIds != null) {
-			this.dataConfig.criteria.robot = robotIds;
+			this.dataConfig.criteria.robots = robotIds;
 			return this;
 		} else {
-			return this.dataConfig.criteria.robot;
+			return this.dataConfig.criteria.robots;
 		}
 	};
 	/**
 	 * Depends on placeIds
-	 * Set place criteria.
-	 *	@param {Array[Int]} placeIds list of place Ids
-	 * Get place criteria.
-	 *	@return {Array[Int]} list of place Ids
+	 * Set places criteria.
+	 *	@param {Array[Int]} placeIds list of places Ids
+	 * Get places criteria.
+	 *	@return {Array[Int]} list of places Ids
 	 */
 	IEQ.prototype.DataPlaceIds = function (placeIds) {
 		if (placeIds != null) {
@@ -233,7 +233,7 @@
 			return this;
 		}
 		else
-			return this.dataConfig.criteria.place;
+			return this.dataConfig.criteria.places;
 	};
 	/**
 	 * Get data by sensor name.
