@@ -435,6 +435,16 @@
 	  * @param {callback} callback: called after update
 	  */
 	IEQ.prototype.getDataMapData = function (dataConfig, callback) {
+		console.warn('This function will be deprecated. Please use "getIeqData" instead.');
+		this.getIeqData(dataConfig, callback);
+	};
+
+	/**
+	 * Request Ieq Data (used for example to make heatmap)
+	  * @param {Object} dataConfig config for data request
+	  * @param {callback} callback: called after update
+	  */
+	IEQ.prototype.getIeqData = function (dataConfig, callback) {
 		this._updateData(callback, dataConfig, "DataRequest");
 	};
 
@@ -457,8 +467,9 @@
 			},
 			sensors: sensorNames
 		};
-		console.warn('This function will be deprecated. Please use "getDataMapData" instead.');
-		this.getDataMapData(dataConfig, callback)
+		console.warn('This function will be deprecated. Please use "getIeqData" instead.');
+		// this.getDataMapData(dataConfig, callback)
+		this.getIeqData(dataConfig, callback);
 	};
 
 	/**
