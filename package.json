@@ -14,7 +14,7 @@
   "license": "MIT",
   "dependencies": {
     "babelify": "7.3.0",
-    "diya-sdk": "diya-sdk/diya-sdk#100-TargetPeer",
+    "diya-sdk": "diya-sdk/diya-sdk#2.0.0",
     "eventemitter3": "2.0.3"
   },
   "devDependencies": {
