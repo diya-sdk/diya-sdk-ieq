@@ -21,7 +21,22 @@ const ConnectorV1 = require('./v1/connector.js')
 const ConnectorV2 = require('./v2/connector.js');
 
 (function () {
-	const DiyaSelector = d1.DiyaSelector
+	let DiyaSelector;
+	try {
+		// For browsers - d1 already defined
+		DiyaSelector = d1.DiyaSelector;
+	}
+	catch (error) {
+		if (error.name === 'ReferenceError') {
+			// For nodejs - define d1
+			const d1 = require('diya-sdk');
+			DiyaSelector = d1.DiyaSelector;
+		} else {
+			throw error;
+		}
+	}
+
+	'use strict';
 
 	/** create Status service * */
 	DiyaSelector.prototype.IEQ = function () {
