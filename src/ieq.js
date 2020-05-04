@@ -50,7 +50,9 @@
 	catch (error) {
 		if (error.name === 'ReferenceError') {
 			// For nodejs - define d1
-			const d1 = require('diya-sdk');
+			// const d1 = require('diya-sdk');
+			const d1 = require('../../diya-sdk/src/diya-sdk');
+
 			DiyaSelector = d1.DiyaSelector;
 		} else {
 			throw error;
@@ -89,7 +91,7 @@
 			 ...
 
 			 sensors : {[null] or ArrayOf SensorName}
-		*/
+		 */
 		this.dataConfig = {
 			criteria: {
 				time: {
@@ -378,15 +380,15 @@
 	};
 
 	/**
-	* Request Data to make CSV file
-		* @param {object} csvConfig params:
-		* @param {list} csvConfig.sensorNames : list of sensor and index names
-		* @param {number} csvConfig._startTime: timestamp of beginning time
-		* @param {number} csvConfig._endTime: timestamp of end time
-		* @param {string} csvConfig.timeSample: timeinterval for data. Parameters: "second", "minute", "hour", "day", "week", "month"
-		* @param {number} csvConfig._nlines: maximum number of lines requested
-		* @param {callback} callback: called after update (@param url to download csv file)
-	*/
+	 * Request Data to make CSV file
+	 * @param {object} csvConfig params:
+	 * @param {list} csvConfig.sensorNames : list of sensor and index names
+	 * @param {number} csvConfig._startTime: timestamp of beginning time
+	 * @param {number} csvConfig._endTime: timestamp of end time
+	 * @param {string} csvConfig.timeSample: timeinterval for data. Parameters: "second", "minute", "hour", "day", "week", "month"
+	 * @param {number} csvConfig._nlines: maximum number of lines requested
+	 * @param {callback} callback: called after update (@param url to download csv file)
+	 */
 	IEQ.prototype.getCSVData = function (csvConfig, callback) {
 
 		var that = this;
@@ -431,9 +433,9 @@
 
 	/**
 	 * Request Data to make data map
-	  * @param {Object} dataConfig config for data request
-	  * @param {callback} callback: called after update
-	  */
+	 * @param {Object} dataConfig config for data request
+	 * @param {callback} callback: called after update
+	 */
 	IEQ.prototype.getDataMapData = function (dataConfig, callback) {
 		console.warn('This function will be deprecated. Please use "getIeqData" instead.');
 		this.getIeqData(dataConfig, callback);
@@ -441,9 +443,9 @@
 
 	/**
 	 * Request Ieq Data (used for example to make heatmap)
-	  * @param {Object} dataConfig config for data request
-	  * @param {callback} callback: called after update
-	  */
+	 * @param {Object} dataConfig config for data request
+	 * @param {callback} callback: called after update
+	 */
 	IEQ.prototype.getIeqData = function (dataConfig, callback) {
 		this._updateData(callback, dataConfig, "DataRequest");
 	};
@@ -451,13 +453,13 @@
 
 	/**
 	 * Request Data to make heatmap
-	  * @param {list} sensorNames : list of sensor and index names
-	  * @param {object} time: object containing timestamps for begin and end of data for heatmap
-	  * @param {string} sample: timeinterval for data. Parameters: "second", "minute", "hour", "day", "week", "month"
-	  * @param {callback} callback: called after update
-	  * @deprecated Will be deprecated in future version. Please use "getDataMapData" instead.
+	 * @param {list} sensorNames : list of sensor and index names
+	 * @param {object} time: object containing timestamps for begin and end of data for heatmap
+	 * @param {string} sample: timeinterval for data. Parameters: "second", "minute", "hour", "day", "week", "month"
+	 * @param {callback} callback: called after update
+	 * @deprecated Will be deprecated in future version. Please use "getDataMapData" instead.
 
-	  */
+	 */
 	IEQ.prototype.getHeatMapData = function (sensorNames, time, sample, callback) {
 		var dataConfig = {
 			criteria: {
@@ -522,13 +524,13 @@
 					dataModel[n].data = (data[n].data != null)
 						? this._coder.from(data[n].data, 'b64', 4)
 						: ((data[n].avg != null)
-						   ? this._coder.from(data[n].avg.d, 'b64', 4)
-						   : null);
+							? this._coder.from(data[n].avg.d, 'b64', 4)
+							: null);
 					dataModel[n].qualityIndex = (data[n].data != null)
 						? this._coder.from(data[n].index, 'b64', 4)
 						: ((data[n].avg != null)
-						   ? this._coder.from(data[n].avg.i, 'b64', 4)
-						   : null);
+							? this._coder.from(data[n].avg.i, 'b64', 4)
+							: null);
 					dataModel[n].robotId = this._coder.from(data[n].robotId, 'b64', 4);
 					if (dataModel[n].robotId != null) {
 						/** dico robotId -> robotName **/
